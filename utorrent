@@ -23,10 +23,13 @@ PIDFILE=/var/run/utorrent.pid
 # Path were you extracted utorrent server
 UTORRENT_PATH=/home/vortex-5/shared/utorrent/utorrent-server-v3_0
 
+# Nice value
+NICE=15
+
 # END CONFIGURATION SECTION #####################################
 
 uTorrentServer() {
-	nice -n 15 $UTORRENT_PATH/utserver -settingspath $UTORRENT_PATH -daemon -logfile $1 -pidfile $2
+	nice -n $NICE $UTORRENT_PATH/utserver -settingspath $UTORRENT_PATH -daemon -logfile $1 -pidfile $2
 }
 
 case "$1" in
@@ -49,9 +52,9 @@ case "$1" in
 	status)
 		if [ -e "$PIDFILE" ]; then
 			PID=$(cat $PIDFILE)
-			echo "utorrent running pid: $PID"
+			echo "uTorrent running pid: $PID"
 		else
-			echo "utorrent not running"
+			echo "uTorrent not running"
 		fi
 		;;
 	restart)
