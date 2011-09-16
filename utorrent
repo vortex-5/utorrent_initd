@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# uTorrent start stop service script
+#
+# copy to /etc/init.d
+# run "update-rc.d utorrent defaults" to install
+# run "update-rc.d utorrent remove" to remove
+#
+# @author FanFan Huang (kaboom05+utorrentscript@gmail.com)
+#
+#
+
+# BEGIN CONFIGURATION SECTION ####################################
+
+# Path where you want store the log file 
+# (default recommended)
+LOGFILE=/var/log/utorrent.log
+
+# Path for the PID file where the process id is stored
+# (default is for debian and ubuntu systems)
+PIDFILE=/var/run/utorrent.pid
+
+# Path were you extracted utorrent server
+UTORRENT_PATH=/home/vortex-5/shared/utorrent/utorrent-server-v3_0
+
+# END CONFIGURATION SECTION #####################################
+
+uTorrentServer() {
+	nice -n 15 $UTORRENT_PATH/utserver -settingspath $UTORRENT_PATH -daemon -logfile $1 -pidfile $2
+}
+
+case "$1" in
+ 	start)
+		uTorrentServer $LOGFILE $PIDFILE
+		;;
+	stop)
+		if [ -e $PIDFILE ]; then
+			echo "uTorrent is shutting down"
+			PID=$(cat $PIDFILE)
+			kill $PID
+			sleep 3
+			echo "uTorrent Service Terminated"
+			rm $PIDFILE
+			rm $LOGFILE
+		else
+			echo "Server is not currently running!"
+		fi
+		;;
+	status)
+		if [ -e "$PIDFILE" ]; then
+			PID=$(cat $PIDFILE)
+			echo "utorrent running pid: $PID"
+		else
+			echo "utorrent not running"
+		fi
+		;;
+	restart)
+		$0 stop
+		$0 start
+		;;
+	log)
+		if [ -e "$LOGFILE" ]; then
+			LOG=$(cat $LOGFILE)
+			echo "$LOG"
+		else
+			echo "uTorrent is not running no active log file"
+		fi
+		;;
+	*)
+		echo "Usage {start|stop|restart|status|log}"
+		exit
+esac
+
+exit 0
+
