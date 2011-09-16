@@ -34,19 +34,44 @@ uTorrentServer() {
 
 case "$1" in
  	start)
-		uTorrentServer $LOGFILE $PIDFILE
+		if [ -e "$PIDFILE" ]; then
+			echo "uTorrent is already running please terminate first"
+		else
+			echo "uTorrent starting"
+			uTorrentServer $LOGFILE $PIDFILE
+		
+			while [ ! -e $LOGFILE ]; do
+				sleep 1 #Wait for file to be generated
+			done	
+	
+			while [ ! -n "$(cat $LOGFILE|grep 'IPv6 is installed')" ]; do
+				#wait until utorrent has finished bootup
+				echo -n ".$(cat $LOGFILE|grep 'IPv6 is installed')"
+                		sleep 1
+			done
+
+                	RESULT=$(cat $LOGFILE|grep 'bind failed')
+                	if [ -n "$RESULT" ]; then
+                        	echo "Port bind failure detected uTorrent may have limited functionality"
+                	else
+                        	echo "uTorrent started successfully"
+                	fi
+		fi
 		;;
 	stop)
-		if [ -e $PIDFILE ]; then
-			echo "uTorrent is shutting down"
+		if [ -e "$PIDFILE" ]; then
+			echo -n "uTorrent is shutting down"
 			PID=$(cat $PIDFILE)
 			kill $PID
-			sleep 3
+			while [ -n "$(pidof "utserver")" ]; do
+				echo -n "."
+				sleep 1
+			done
 			echo "uTorrent Service Terminated"
 			rm $PIDFILE
 			rm $LOGFILE
 		else
-			echo "Server is not currently running!"
+			echo "Service is not currently running!"
 		fi
 		;;
 	status)
