@@ -75,10 +75,11 @@ do_start()
 			sleep 1 #Wait for file to be generated
 		done
 
-		while [ ! -n "$(cat $LOGFILE|grep 'IPv6 is installed')" ]; do
-        	#wait until utorrent has finished bootup (IPv6 MESSAGE is the last message)
-			sleep 1
-		done
+######################## DISABLED ENABLE THIS SECTION IF YOU HAVE IPv6 HANGS WITH NO IPv6 Support ################
+#		while [ ! -n "$(cat $LOGFILE|grep 'IPv6 is installed')" ]; do
+#        	#wait until utorrent has finished bootup (IPv6 MESSAGE is the last message)#
+#			sleep 1
+#		done
 
 		RESULT=$(cat $LOGFILE|grep 'bind failed')
         if [ -n "$RESULT" ]; then
